@@ -26,6 +26,6 @@ public class PostDto {
     private Set<TagDto> tags;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private PostStatus postStatus;
+    private PostStatus status;
 
 }
