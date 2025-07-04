@@ -40,8 +40,7 @@ public class CategoryController {
 
         return new  ResponseEntity<> (
                 categoryMapper.toDto(savedCategory),
-        HttpStatus.CREATED
-                );
+        HttpStatus.CREATED);
 
     }
 
@@ -49,7 +48,6 @@ public class CategoryController {
     public ResponseEntity<Void> deleteCategory(
             @PathVariable UUID id
             ) {
-
         categoryService.deleteCategory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
