@@ -1,13 +1,16 @@
 package com.sazzad.blog.services.impl;
 
+import com.sazzad.blog.domain.dtos.AuthResponse;
 import com.sazzad.blog.domain.dtos.RegistrationRequest;
 import com.sazzad.blog.domain.dtos.RegistrationResponse;
 import com.sazzad.blog.domain.entities.User;
 import com.sazzad.blog.mappers.UserInfoMapper;
 import com.sazzad.blog.repositories.UserRepository;
+import com.sazzad.blog.services.AuthenticationService;
 import com.sazzad.blog.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserInfoMapper userInfoMapper;
+    private final AuthenticationService authenticationService;
 
     @Override
     public User getUserById(UUID id) {
@@ -32,9 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public RegistrationResponse registerUser(RegistrationRequest request) {
+    public AuthResponse registerUser(RegistrationRequest request) {
 
-        if(userRepository.existByEmail(request.getEmail())){
+        if(userRepository.existsByEmail(request.getEmail())){
             throw new RuntimeException("Email already exists");
         }
 
@@ -46,7 +50,13 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        return userInfoMapper.toDto(savedUser);
+        UserDetails userDetails = authenticationService.authenticate(request.getEmail(), request.getPassword());
+        String token = authenticationService.generateToken(userDetails);
+
+        return AuthResponse.builder()
+                .token(token)
+                .expiresIn(86400)
+                .build();
 
     }
 }

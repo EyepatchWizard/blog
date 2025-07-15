@@ -29,21 +29,6 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService (UserRepository userRepository) {
         BlogUserDetailsService blogUserDetailsService = new BlogUserDetailsService(userRepository);
-
-        String email = "user@test.com";
-
-        userRepository.findByEmail(email).orElseGet(() -> {
-
-            User newUser = User.builder()
-                    .name("testUser")
-                    .email(email)
-                    .password(passwordEncoder().encode("password"))
-                    .build();
-
-            return userRepository.save(newUser);
-        });
-
-
         return blogUserDetailsService;
     }
 
@@ -56,6 +41,7 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/drafts").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()

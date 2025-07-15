@@ -1,7 +1,9 @@
 package com.sazzad.blog.controllers;
 
+import com.sazzad.blog.domain.dtos.AuthResponse;
 import com.sazzad.blog.domain.dtos.RegistrationRequest;
 import com.sazzad.blog.domain.dtos.RegistrationResponse;
+import com.sazzad.blog.services.AuthenticationService;
 import com.sazzad.blog.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,9 @@ public class RegistrationController {
     private final UserService userService;
 
     @PostMapping
-    ResponseEntity<RegistrationResponse> registration(@RequestBody RegistrationRequest request) {
+    ResponseEntity<AuthResponse> registration(@RequestBody RegistrationRequest request) {
 
-        RegistrationResponse response = userService.registerUser(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        AuthResponse authResponse = userService.registerUser(request);
+        return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 }
