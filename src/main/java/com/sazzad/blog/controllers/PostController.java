@@ -32,9 +32,11 @@ public class PostController {
     @GetMapping
     ResponseEntity<List<PostDto>> getAllPosts(
             @RequestParam(required = false) UUID categoryId,
-            @RequestParam(required = false) UUID tagID) {
+            @RequestParam(required = false) UUID tagID,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
 
-        List<Post> posts = postService.getAllPost(categoryId, tagID);
+        List<Post> posts = postService.getAllPost(categoryId, tagID, page, size);
         List<PostDto> postDtos = posts.stream().map(postMapper::toDto).toList();
 
         return ResponseEntity.ok(postDtos);
@@ -42,10 +44,13 @@ public class PostController {
     }
 
     @GetMapping(path = "/drafts")
-    ResponseEntity<List<PostDto>> getDrafts(@RequestAttribute UUID userId) {
+    ResponseEntity<List<PostDto>> getDrafts(
+            @RequestAttribute UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         User logedInUser = userService.getUserById(userId);
-        List<Post> draftPosts = postService.getDraftPosts(logedInUser);
+        List<Post> draftPosts = postService.getDraftPosts(logedInUser, page, size);
         List<PostDto> postDtos = draftPosts.stream().map(postMapper::toDto).toList();
         return ResponseEntity.ok(postDtos);
 

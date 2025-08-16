@@ -13,6 +13,9 @@ import com.sazzad.blog.services.PostService;
 import com.sazzad.blog.services.TagService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,25 +43,32 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Post> getAllPost(UUID categoryId, UUID tagId) {
+    public List<Post> getAllPost(UUID categoryId, UUID tagId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
 
         if(categoryId != null && tagId != null) {
+
             Category category = categoryService.findCategoryByID(categoryId);
             Tag tag = tagService.findTagById(tagId);
 
             return postRepository.findAllByStatusAndCategoryAndTagsContaining(
                     PostStatus.PUBLISHED,
                     category,
-                    tag
-            );
+                    tag,
+                    pageable
+            )
+                    .getContent();
         }
 
         if(categoryId != null) {
             Category category = categoryService.findCategoryByID(categoryId);
             return postRepository.findAllByStatusAndCategory(
                     PostStatus.PUBLISHED,
-                    category
-            );
+                    category,
+                    pageable
+            )
+                    .getContent();
         }
 
         if(tagId != null) {
@@ -66,17 +76,21 @@ public class PostServiceImpl implements PostService {
             Tag tag = tagService.findTagById(tagId);
             return postRepository.findAllByStatusAndTagsContaining(
                     PostStatus.PUBLISHED,
-                    tag
-            );
+                    tag,
+                    pageable
+            )
+                    .getContent();
         }
 
-        return postRepository.findAllByStatus(PostStatus.PUBLISHED);
+        return postRepository.findAllByStatus(PostStatus.PUBLISHED, pageable).getContent();
 
     }
 
     @Override
-    public List<Post> getDraftPosts(User user) {
-        return postRepository.findAllByAuthorAndStatus(user, PostStatus.DRAFT);
+    public List<Post> getDraftPosts(User user, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findAllByAuthorAndStatus(user, PostStatus.DRAFT, pageable).getContent();
     }
 
     @Override
